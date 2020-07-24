@@ -1,12 +1,9 @@
-import React from 'react';
-import { Counter } from './components/Counter';
-import { Result } from './components/Result';
+import React, { useState } from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-//REDUX
-import { createStore } from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension';
-import { initialState, counterStore } from './store/reducer/counter.reducer';
-import { Provider } from 'react-redux';
+import { PropertyArea } from './components/PropertyArea';
+import { FilterArea } from './components/FilterArea';
+import { filterInterface } from './const/types';
+import { FilterContext } from './contextAPI/FilterContext';
 
 //Definimos estilo de nuestra APP principal
 const useStyles = makeStyles(() =>
@@ -20,25 +17,33 @@ const useStyles = makeStyles(() =>
   })
 );
 
-export const store = createStore(
-  counterStore,
-  initialState,
-  composeWithDevTools()
-  // other store enhancers if any
-);
-
 //Ejecutamos nuestra App
 function App() {
   //Generamos las propiedades CSS que implementamos en nuestra App
   const classes = useStyles();
+  //filter state
+  const [filter, setFilter] = React.useState<filterInterface>({
+    rooms: [],
+    bath: [],
+    parking: [],
+    type: [],
+    set: handleChange,
+  });
+  //metodo para modificar Context
+  function handleChange(event: any) {
+    setFilter(pre => ({
+      ...pre,
+      [event.target.name]: event.target.value as string[],
+    }));
+  }
 
   return (
-    <Provider store={store}>
-      <div className={classes.main}>
-        <Result />
-        <Counter />
-      </div>
-    </Provider>
+    <div className={classes.main}>
+      <FilterContext.Provider value={filter}>
+        <FilterArea />
+        <PropertyArea />
+      </FilterContext.Provider>
+    </div>
   );
 }
 
