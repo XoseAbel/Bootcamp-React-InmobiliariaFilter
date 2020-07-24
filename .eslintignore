@@ -1,0 +1,8 @@
+/src/serviceWorker.ts
+/src/react-app-env.d.ts
+/src/setupTest.ts
+/src/**/*.test.ts
+/src/**/*.test.tsx
+
+# No evaluar index en estos proyectos
+/src/index.tsx
