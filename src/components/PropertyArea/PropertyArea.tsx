@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { PropertyCard } from './components/PropertyCard';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { propertiesInterface } from '../../const/types';
 import { getProperty } from '../../api/getProperty';
 import { FilterContext } from '../../contextAPI/FilterContext';
-import { filterProperties } from './components/filterProperties';
+import { filterProperties } from '../FilterArea/components/filterProperties';
+import { PropertyContext } from '../../contextAPI/PropertyContext';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -26,34 +26,30 @@ const useStyles = makeStyles(() =>
 const PropertyArea = () => {
   //css style
   const classes = useStyles();
-  //estado inmuebles
-  const [properties, setProperties] = useState<propertiesInterface>({
-    properties: null,
-    loading: false,
-  });
+
+  //context filter
+  const { filter } = useContext(FilterContext);
+  const { handleChangeAvalabilityFilter } = useContext(FilterContext);
+
+  //estado inmuebles desestructurado desde App
+  const { properties } = useContext(PropertyContext);
+
+  //set del estado inmuebles desestructurado desde App
+  const { setProperties } = useContext(PropertyContext);
+
   //llamada a la API al iniciar componentes
   useEffect(() => {
     if (properties.properties === null) {
       const resultApi = async () => {
         const data = await getProperty();
-
         setProperties({ properties: data.properties, loading: true });
+
+        //calculamos filtros en la primera llamda a la API
+        handleChangeAvalabilityFilter(data.properties);
       };
       resultApi();
     }
-  }, []);
-
-  //context filter
-  const filter = useContext(FilterContext);
-
-  useEffect(() => {
-    if (properties.properties !== null) {
-      const result = properties.properties.filter((property: any) =>
-        filterProperties(property, filter)
-      );
-      // setProperties({ ...properties, properties: result });
-    }
-  }, [filter]);
+  }, [properties.properties, filter]);
 
   return (
     <div className={classes.area}>
@@ -64,6 +60,7 @@ const PropertyArea = () => {
           (property: any) =>
             filterProperties(property, filter) && (
               <PropertyCard
+                key={property.id}
                 title={property.publication_title}
                 description={property.description}
                 photo={property.photos}

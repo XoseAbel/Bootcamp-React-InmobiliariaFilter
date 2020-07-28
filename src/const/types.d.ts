@@ -12,7 +12,12 @@ interface filterInterface {
   bath: string[];
   parking: string[];
   type: string[];
-  set: any | null;
+  availableFilter?: {
+    rooms?: string[];
+    bath?: string[];
+    parking?: string[];
+    type?: string[];
+  };
 }
 
 export { resultApiInterface, propertiesInterface, filterInterface };

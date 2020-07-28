@@ -1,13 +1,13 @@
-import React, { useContext } from 'react';
-import clsx from 'clsx';
+import React, { useContext, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import { filterInterface } from '../../const/types';
 import { FilterContext } from '../../contextAPI/FilterContext';
+import { filterProperties } from './components/filterProperties';
+import { PropertyContext } from '../../contextAPI/PropertyContext';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -43,18 +43,35 @@ const MenuPropsTypes = {
   },
 };
 
-const rooms = ['0', '1', '2', '3', '4', '5', '6'];
-const bathrooms = ['0', '1', '2', '3', '4', '5'];
-const parking = ['0', '1', '2', '3', '4'];
-const types = ['Departamento', 'Oficina', 'Casa', 'Condominio horizontal'];
-
 const FilterArea = () => {
   const classes = useStyles();
 
-  const filter = useContext(FilterContext);
+  //obtenemos metodos de la contextAPI
+  const { filter } = useContext(FilterContext);
+  const { handleChangeFilter } = useContext(FilterContext);
+  const { handleChangeAvalabilityFilter } = useContext(FilterContext);
+
+  //info de properties para filtros dinamicos
+  const { properties } = useContext(PropertyContext);
+
+  //obtenemos los posibles filtros del contexto, e asignamos a nuestros select
+  const { availableFilter } = useContext(FilterContext).filter;
+  let rooms = availableFilter?.rooms;
+  let bathrooms = availableFilter?.bath;
+  let parking = availableFilter?.parking;
+  let types = availableFilter?.type;
 
   const handleChange = (event: any) => {
-    filter.set(event);
+    handleChangeFilter(event);
+  };
+
+  const handleCloseAvalabilityFilter = () => {
+    if (properties.properties !== null) {
+      const result: any[] = properties.properties.filter((property: any) => {
+        if (filterProperties(property, filter)) return property;
+      });
+      handleChangeAvalabilityFilter(result);
+    }
   };
 
   return (
@@ -64,12 +81,13 @@ const FilterArea = () => {
         <Select
           multiple
           name='type'
-          value={filter?.type}
+          value={filter.type}
           onChange={handleChange}
+          onClose={handleCloseAvalabilityFilter}
           input={<Input />}
           MenuProps={MenuPropsTypes}
         >
-          {types.map(type => (
+          {types?.map(type => (
             <MenuItem key={type} value={type}>
               {type}
             </MenuItem>
@@ -83,10 +101,11 @@ const FilterArea = () => {
           name='rooms'
           value={filter?.rooms}
           onChange={handleChange}
+          onClose={handleCloseAvalabilityFilter}
           input={<Input />}
           MenuProps={MenuProps}
         >
-          {rooms.map(room => (
+          {rooms?.map(room => (
             <MenuItem key={room} value={room}>
               {room}
             </MenuItem>
@@ -100,10 +119,11 @@ const FilterArea = () => {
           name='bath'
           value={filter.bath}
           onChange={handleChange}
+          onClose={handleCloseAvalabilityFilter}
           input={<Input />}
           MenuProps={MenuProps}
         >
-          {bathrooms.map(bath => (
+          {bathrooms?.map(bath => (
             <MenuItem key={bath} value={bath}>
               {bath}
             </MenuItem>
@@ -117,10 +137,11 @@ const FilterArea = () => {
           name='parking'
           value={filter.parking}
           onChange={handleChange}
+          onClose={handleCloseAvalabilityFilter}
           input={<Input />}
           MenuProps={MenuProps}
         >
-          {parking.map(park => (
+          {parking?.map(park => (
             <MenuItem key={park} value={park}>
               {park}
             </MenuItem>
