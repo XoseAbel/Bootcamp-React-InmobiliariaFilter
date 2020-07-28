@@ -5,6 +5,7 @@ import { FilterArea } from './components/FilterArea';
 import { filterInterface, propertiesInterface } from './const/types';
 import { FilterContext } from './contextAPI/FilterContext';
 import { PropertyContext } from './contextAPI/PropertyContext';
+import { getAvailabilityFilter } from './components/getAvailabilityFilter';
 
 //Definimos estilo de nuestra APP principal
 const useStyles = makeStyles(() =>
@@ -22,7 +23,7 @@ const useStyles = makeStyles(() =>
 function App() {
   //Generamos las propiedades CSS que implementamos en nuestra App
   const classes = useStyles();
-  //filter state
+  //filter state con los filtros selecionados + filtros disponibles
   const [filter, setFilter] = React.useState<filterInterface>({
     rooms: [],
     bath: [],
@@ -49,23 +50,8 @@ function App() {
     loading: false,
   });
 
-  //metodo para modificar Context modificando opciones filtrado
+  //funcion para modificar las opciones disponibles en los filtros
   function handleChangeAvalabilityFilter(arr: any) {
-    function getAvailabilityFilter(
-      arr: any[],
-      amount: string,
-      secondAmout?: string
-    ) {
-      if (secondAmout) {
-        const resultFilter = arr.map(
-          (property: any) => property[amount][secondAmout]
-        );
-        return Array.from(new Set(resultFilter)).sort();
-      }
-      const resultFilter = arr.map((property: any) => property[amount] + '');
-      return Array.from(new Set(resultFilter)).sort();
-    }
-
     const newAvailableFilter = {
       rooms: getAvailabilityFilter(arr, 'room_amount'),
       bath: getAvailabilityFilter(arr, 'bathroom_amount'),
